@@ -54,3 +54,22 @@ func NewServer(ctx context.Context, log logger.Logger) (*Server, error) {
 		discoveryService: discoveryService,
 	}, nil
 }
+
+func (s *Server) Start() error {
+	s.log.Info("Starting server...")
+
+	if err := s.transport.Start(s.ctx); err != nil {
+		return err
+	}
+
+	s.log.Info("Server started with PeerID: ", s.transport.SelfID())
+	return nil
+}
+
+func (s *Server) Stop() {
+	s.log.Info("Stopping server...")
+	s.transport.Stop()
+	s.cancel()
+	s.log.Info("Server stopped.")
+}
+
