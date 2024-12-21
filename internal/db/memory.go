@@ -17,3 +17,20 @@ func NewInMemoryDB() *InMemoryDB {
 	}
 }
 
+// Just add the peers
+func (db *InMemoryDB) AddPeer(peer *models.PeerInfo) {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	db.peers[peer.ID] = peer
+}
+
+func (db *InMemoryDB) GetPeers() []*models.PeerInfo {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	peers := make([]*models.PeerInfo, 0, len(db.peers))
+	for _, p := range db.peers {
+		peers = append(peers, p)
+	}
+
+	return peers
+}
