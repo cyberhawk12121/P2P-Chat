@@ -73,3 +73,20 @@ func (s *Server) Stop() {
 	s.log.Info("Server stopped.")
 }
 
+func (s *Server) SendMessage(peerID, msg string) error {
+	return s.chatService.SendMessage(peerID, msg)
+}
+
+func (s *Server) ListPeers() [](*servicePeerInfo) {
+	peers := s.discoveryService.ListKnownPeers()
+	ret := make([]*servicePeerInfo, 0, len(peers))
+	for _, p := range peers {
+		ret = append(ret, &servicePeerInfo{ID: p.ID, Addresses: p.Addresses})
+	}
+	return ret
+}
+
+type servicePeerInfo struct {
+	ID        string
+	Addresses []string
+}
