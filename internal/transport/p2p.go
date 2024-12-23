@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/cyberhawk12121/p2pchat/internal/models"
-	"github.com/libp2p/go-libp2p"
 	dht "github.com/libp2p/go-libp2p-kad-dht"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/network"
@@ -28,9 +27,12 @@ type P2PTransport interface {
 }
 
 type p2pTransport struct {
-	host           host.Host
-	dht            *dht.IpfsDHT
-	onMessage      OnMessageFunc
+	host host.Host
+	dht  *dht.IpfsDHT
+	// OnMessage function is basically how we want to process the received message
+	onMessage OnMessageFunc
+	// bootstrapPeers are nodes that we need to connect to get the initial data of the network,
+	//  like peers to connect etc.
 	bootstrapPeers []multiaddr.Multiaddr
 }
 
@@ -52,10 +54,13 @@ func NewP2PTransport(bootstrapPeers []string) (P2PTransport, error) {
 
 func (p *p2pTransport) Start(ctx context.Context) error {
 	// Start a host
-	h, err := libp2p.New(libp2p.DefaultTransports, libp2p.DefaultMuxers, libp2p.DefaultSecurity)
+	h, err := createHostWithPersistentKey()
 	if err != nil {
 		return err
 	}
+
+	// pubKey := h.Peerstore().PubKey(h.ID())
+	// privKey := h.Peerstore().PrivKey(h.ID())
 
 	p.host = h
 
